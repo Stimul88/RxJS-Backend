@@ -1,8 +1,8 @@
 const http = require('http');
 const Koa = require('koa');
 const koaBody = require('koa-body').default;
-const { faker } = require('@faker-js/faker');
 
+const router = require('./routes');
 
 const app = new Koa();
 
@@ -11,27 +11,6 @@ app.use(koaBody({
   multipart: true,
   json: true,
 }));
-
-
-function  getUser() {
-  return {
-    id: faker.string.uuid(),
-    from: faker.internet.email(),
-    subject: `Hello from ${faker.person.firstName()} ${( faker.person.lastName() || '')}`,
-    body: faker.lorem.text(),
-    received: Date.now(),
-  }
-}
-
-
-let multipleUsersArray = [];
-
-const timerId = setInterval(() => {
-  multipleUsersArray = faker.helpers.multiple(getUser, {count: 2});
-
-}, 5000);
-
-// setTimeout(() => { clearInterval(timerId) }, 50000);
 
 
 
@@ -52,33 +31,14 @@ app.use(async (ctx, next) => {
   await next();
 })
 
-app.use(async (ctx) => {
-  ctx.response.set('Access-Control-Allow-Origin', '*');
-
-
-  const response = {
-    status: 'ok',
-    timestamp: Date.now(),
-    messages: multipleUsersArray,
-  };
-
-  ctx.response.body = JSON.stringify(response)
-
-});
-
 
 //TODO: write code here
 
+app.use(router());
+
+const port = process.env.PORT || 8080;
 const server = http.createServer(app.callback());
 
-const port = process.env.PORT || 7070;
+server.listen(port);
 
-server.listen(port, (err) => {
-  if (err) {
-    console.log(err);
 
-    return;
-  }
-
-  console.log('Server is listening to ' + port);
-});
