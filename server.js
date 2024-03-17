@@ -1,8 +1,9 @@
 const http = require('http');
 const Koa = require('koa');
 const koaBody = require('koa-body').default;
+const getUser = require('./db/user');
+const { faker } = require('@faker-js/faker');
 
-const router = require('./routes');
 
 const app = new Koa();
 
@@ -11,6 +12,16 @@ app.use(koaBody({
   multipart: true,
   json: true,
 }));
+
+
+let multipleUsersArray = [];
+
+const timerId = setInterval(() => {
+  multipleUsersArray = faker.helpers.multiple(getUser, {count: 2});
+
+}, 5000);
+
+// setTimeout(() => { clearInterval(timerId) }, 50000);
 
 
 
@@ -31,14 +42,25 @@ app.use(async (ctx, next) => {
   await next();
 })
 
+app.use(async (ctx) => {
+  ctx.response.set('Access-Control-Allow-Origin', '*');
+
+
+  const response = {
+    status: 'ok',
+    timestamp: Date.now(),
+    messages: multipleUsersArray,
+  };
+
+  ctx.response.body = JSON.stringify(response)
+
+});
+
 
 //TODO: write code here
 
-app.use(router());
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 7070;
 const server = http.createServer(app.callback());
 
 server.listen(port);
-
-
