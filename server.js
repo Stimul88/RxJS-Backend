@@ -1,7 +1,6 @@
 const http = require('http');
 const Koa = require('koa');
 const koaBody = require('koa-body').default;
-const getUser = require('./db/user');
 const { faker } = require('@faker-js/faker');
 
 
@@ -12,6 +11,17 @@ app.use(koaBody({
   multipart: true,
   json: true,
 }));
+
+
+function  getUser() {
+  return {
+    id: faker.string.uuid(),
+    from: faker.internet.email(),
+    subject: `Hello from ${faker.person.firstName()} ${( faker.person.lastName() || '')}`,
+    body: faker.lorem.text(),
+    received: Date.now(),
+  }
+}
 
 
 let multipleUsersArray = [];
