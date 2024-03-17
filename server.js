@@ -69,8 +69,16 @@ app.use(async (ctx) => {
 
 //TODO: write code here
 
-
-const port = process.env.PORT || 7070;
 const server = http.createServer(app.callback());
 
-server.listen(port);
+const port = process.env.PORT || 7070;
+
+server.listen(port, (err) => {
+  if (err) {
+    console.log(err);
+
+    return;
+  }
+
+  console.log('Server is listening to ' + port);
+});
